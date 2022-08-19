@@ -1,0 +1,14 @@
+{
+  "name": "prime-marketplace",
+  "version": "1.0.0",
+  "description": "Prime Marketplace",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Emmanuel Oreoluwa",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
