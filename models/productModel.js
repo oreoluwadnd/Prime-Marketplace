@@ -24,10 +24,11 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Description is required'],
     maxlength: [1000, 'Description can not be more than 1000 characters'],
   },
-  image: {
+  imageCover: {
     type: String,
-    required: [true, 'Image is required'],
+    required: [true, 'imageCover is required'],
   },
+  images: [String],
   category: {
     type: String,
     required: [true, 'Category is required'],
