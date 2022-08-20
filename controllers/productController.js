@@ -11,9 +11,18 @@ exports.getProducts = async (req, res, next) => {
 };
 
 exports.createProduct = async (req, res, next) => {
-  const { name, price, image, quantity, manufacturer, description, category } =
-    req.body;
+  const {
+    name,
+    price,
+    image,
+    quantity,
+    manufacturer,
+    description,
+    category,
+    code,
+  } = req.body;
   const product = await Product.create({
+    code,
     name,
     price,
     image,
@@ -35,7 +44,7 @@ exports.getProduct = async (req, res, next) => {
   if (!product) {
     res.status(404).json({
       result: 'fail',
-      message: 'No product with that Id',
+      message: 'No product with that ID',
     });
   }
   res.status(200).json({
