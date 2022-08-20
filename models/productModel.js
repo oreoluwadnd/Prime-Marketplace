@@ -3,14 +3,18 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
+    required: [true, 'Name is required'],
+    maxlength: [100, 'Name can not be more than 100 characters'],
   },
   price: {
     type: Number,
     required: [true, 'Price is required'],
+    default: 0,
   },
   description: {
     type: String,
     required: [true, 'Description is required'],
+    maxlength: [1000, 'Description can not be more than 1000 characters'],
   },
   image: {
     type: String,
@@ -19,6 +23,7 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Category is required'],
+    enum: ['office', 'kitchen', 'bedroom'],
   },
   createdAt: {
     type: Date,
@@ -30,7 +35,7 @@ const productSchema = new mongoose.Schema({
   },
   quantity: {
     type: Number,
-    required: [true, 'Inventory is required'],
+    required: [true, 'quantity is required'],
   },
   manufacturer: {
     type: String,

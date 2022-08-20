@@ -1,12 +1,11 @@
 const express = require('express');
+const morgan = require('morgan');
 const productRouter = require('./routes/productRoutes');
 
 const app = express();
+app.use(morgan('tiny'));
+app.use(express.json({ limit: '10kb' }));
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-app.use('/api/products', productRouter);
+app.use('/api/v1/products', productRouter);
 
 module.exports = app;
