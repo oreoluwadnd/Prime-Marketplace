@@ -1,5 +1,7 @@
 const sharp = require('sharp');
 const multer = require('multer');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/AppError');
 const Product = require('../models/productModel');
 
 const multerStorage = multer.memoryStorage();
@@ -60,8 +62,7 @@ exports.getProducts = async (req, res, next) => {
   });
 };
 
-exports.createProduct = async (req, res, next) => {
-  console.log(req.body);
+exports.createProduct = catchAsync(async (req, res, next) => {
   const {
     name,
     price,
@@ -90,15 +91,12 @@ exports.createProduct = async (req, res, next) => {
       product,
     },
   });
-};
+});
 
-exports.getProduct = async (req, res, next) => {
+exports.getProduct = catchAsync(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
   if (!product) {
-    res.status(404).json({
-      result: 'fail',
-      message: 'No product with that ID',
-    });
+    return next(new AppError('No product found with that ID', 404));
   }
   res.status(200).json({
     result: 'success',
@@ -106,18 +104,15 @@ exports.getProduct = async (req, res, next) => {
       product,
     },
   });
-};
+});
 
-exports.updateProduct = async (req, res, next) => {
+exports.updateProduct = catchAsync(async (req, res, next) => {
   const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
   if (!product) {
-    res.status(404).json({
-      result: 'fail',
-      message: 'No product with that Id',
-    });
+    return next(new AppError('No product found with that ID', 404));
   }
   res.status(200).json({
     result: 'success',
@@ -125,17 +120,14 @@ exports.updateProduct = async (req, res, next) => {
       product,
     },
   });
-};
-exports.deleteProduct = async (req, res, next) => {
+});
+exports.deleteProduct = catchAsync(async (req, res, next) => {
   const product = await Product.findByIdAndDelete(req.params.id);
   if (!product) {
-    res.status(404).json({
-      result: 'fail',
-      message: 'No product with that Id',
-    });
+    return next(new AppError('No product found with that ID', 404));
   }
   res.status(200).json({
     status: 'success',
     data: null,
   });
-};
+});
