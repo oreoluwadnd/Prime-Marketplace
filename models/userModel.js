@@ -60,6 +60,16 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return JWTTimestamp < changedTimestamp;
+  }
+  return false;
+};
 userSchema.methods.correctPassword = async function (
   //get the password from the request body
   candidatePassword,
@@ -82,4 +92,5 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordReseetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
+
 module.exports = mongoose.model('User', userSchema);

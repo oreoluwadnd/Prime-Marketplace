@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { promisfy } = require('util');
+const { promisify } = require('util');
 const crypto = require('crypto');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
@@ -77,7 +77,10 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('You are not logged in', 401));
   }
   //Verifying the token gotten from the header
-  const verifyToken = await promisfy(jwt.verify)(token, process.env.JWT_SECRET);
+  const verifyToken = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET
+  );
   //Checking if the user exists
   const tokenUser = await User.findById(verifyToken.id);
   if (!tokenUser) {
@@ -141,12 +144,32 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
+  const { passwordCurrent, password, confirmPassword } = req.body;
   const user = await User.findById(req.user.id).select('+password');
-  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+  if (!(await user.correctPassword(passwordCurrent, user.password))) {
     return next(new AppError('Incorrect password', 401));
+  }
+  if (password !== confirmPassword) {
+    return next(new AppError('Passwords do not match', 400));
+  }
+  if (await user.correctPassword(password, user.password)) {
+    return next(
+      new AppError('New password cannot be the same as the old one', 400)
+    );
   }
   user.password = req.body.password;
   user.confirmPassword = req.body.confirmPassword;
   await user.save();
   createToken(user, 200, res);
 });
+
+exports.retrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403)
+      );
+    }
+    next();
+  };

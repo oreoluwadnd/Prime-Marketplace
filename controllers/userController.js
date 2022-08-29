@@ -1,6 +1,15 @@
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
+const Email = require('../utils/email');
+
+const filterObj = (obj, ...allowFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowFields.includes(el)) newObj[el] = obj[el];
+  });
+  return newObj;
+};
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
@@ -50,5 +59,47 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
   res.status(204).json({
     result: 'success',
     data: null,
+  });
+});
+
+exports.createUser = catchAsync(async (req, res, next) => {
+  const newUser = await User.create(req.body);
+  await new Email(newUser).sendWelcome();
+  res.status(201).json({
+    result: 'success',
+    data: {
+      newUser,
+    },
+  });
+});
+
+exports.getMe = catchAsync(async (req, res, next) => {
+  const useDetails = await User.findById(req.user.id);
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: useDetails,
+    },
+  });
+});
+exports.updateMe = catchAsync(async (req, res, next) => {
+  if (req.body.password || req.body.passwordConfrim) {
+    return next(
+      new AppError(
+        'This route is not for password updates . Please use /updatePassword',
+        400
+      )
+    );
+  }
+  const filteredBody = filterObj(req.body, 'name', 'email');
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: updatedUser,
+    },
   });
 });
