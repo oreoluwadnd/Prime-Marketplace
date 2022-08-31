@@ -18,14 +18,12 @@ exports.createOrderItems = catchAsync(async (req, res, next) => {
   let subTotal = 0;
 
   for (const item of cartItems) {
-    const unitProduct = await Product.findById(item.productId);
+    const unitProduct = await Product.findById(item.id);
     if (!unitProduct) {
-      return next(
-        new AppError(`Product not found with ${item.productId}`, 404)
-      );
+      return next(new AppError(`Product not found with ${item.id}`, 404));
     }
     const SingleItemSchema = {
-      product: item.productId,
+      product: item.id,
       name: unitProduct.name,
       price: unitProduct.price,
       quantity: item.quantity,
@@ -38,35 +36,73 @@ exports.createOrderItems = catchAsync(async (req, res, next) => {
   req.body.orderItems = orderItems;
   req.body.subTotal = subTotal;
   req.body.shippingCost = shippingCost;
+  // req.cartItems = undefined;
   next();
 });
 
 exports.createOrder = catchAsync(async (req, res, next) => {
-  const { oderItems, totalPrice, shippingAddress, subTotal, shippingMethod } =
+  const { orderItems, totalPrice, shippingAddress, subTotal, shippingMethod } =
     req.body;
   const newOrder = await Order.create({
-    user: req.user._id,
-    oderItems,
+    user: req.user.id,
+    orderItems,
     totalPrice,
     subTotal,
-    shippingAddress,
-    shippingMethod,
+    shippingAddress: 'Abuja',
+    shippingMethod: 'express',
     paymentMethod: 'cash on delivery',
     paymentToken: 'neworder',
     paymentId: 'neworder',
   });
-});
-
-exports.test = catchAsync(async (req, res, next) => {
-  req.body.test = 'test';
-  next();
-});
-
-exports.test2 = catchAsync(async (req, res, next) => {
-  res.status(200).json({
-    result: 'success',
+  res.status(201).json({
+    status: 'success',
     data: {
-      data: req.body.test,
+      order: newOrder,
+    },
+  });
+});
+
+exports.getAllOrders = catchAsync(async (req, res, next) => {
+  const orders = await Order.find();
+  res.status(200).json({
+    status: 'success',
+    results: orders.length,
+    data: {
+      orders,
+    },
+  });
+});
+exports.getOrder = catchAsync(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return next(new AppError('Order not found', 404));
+  }
+  res.status(200).json({
+    status: 'success',
+    data: {
+      order,
+    },
+  });
+});
+
+exports.getMyOrders = catchAsync(async (req, res, next) => {
+  const orders = await Order.find({ user: req.user.id });
+  res.status(200).json({
+    status: 'success',
+    results: orders.length,
+    data: {
+      orders,
+    },
+  });
+});
+
+exports.getOrderbyUser = catchAsync(async (req, res, next) => {
+  const orders = await Order.find({ user: req.params.userId });
+  res.status(200).json({
+    status: 'success',
+    results: orders.length,
+    data: {
+      orders,
     },
   });
 });

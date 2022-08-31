@@ -31,12 +31,8 @@ const OrderSchema = new moongose.Schema(
       ref: 'User',
       required: true,
     },
-    oderItems: [SingleItemSchema],
-    total: {
-      type: Number,
-      required: true,
-    },
-    subtotal: {
+    orderItems: [SingleItemSchema],
+    subTotal: {
       type: Number,
       required: true,
     },
