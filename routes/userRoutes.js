@@ -21,13 +21,13 @@ router.route('/updateMe').patch(userController.updateMe);
 router.route('/updatePassword').patch(authController.updatePassword);
 router
   .route('/')
-  .get(authController.retrictTo('admin'), userController.getAllUsers)
-  .post(authController.retrictTo('admin'), userController.createUser);
+  .get(authController.restrictTo('admin'), userController.getAllUsers)
+  .post(authController.restrictTo('admin'), userController.createUser);
 router
   .route('/:id')
-  .get(authController.retrictTo('admin'), userController.getUser)
-  .patch(authController.retrictTo('admin'), userController.updateUser)
-  .delete(authController.retrictTo('admin'), userController.deleteUser);
+  .get(authController.restrictTo('admin'), userController.getUser)
+  .patch(authController.restrictTo('admin'), userController.updateUser)
+  .delete(authController.restrictTo('admin'), userController.deleteUser);
 
 // router.route('/logout').post(authController.logout);
 

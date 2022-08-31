@@ -6,7 +6,7 @@ const Product = require('../models/productModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
-exports.createOrder = catchAsync(async (req, res, next) => {
+exports.createOrderItems = catchAsync(async (req, res, next) => {
   const { cartItems, shippingAddress, shippingCost, shippingMethod } = req.body;
   if (!cartItems || cartItems.length === 0) {
     return next(new AppError('Cart is empty', 400));
@@ -34,11 +34,19 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     orderItems = [...orderItems, SingleItemSchema];
     subTotal += unitProduct.price * item.quantity;
   }
-  const totalPrice = subTotal + shippingCost;
-  //pAYMENT api integration here later on ...
+  req.body.totalPrice = subTotal + shippingCost;
+  req.body.orderItems = orderItems;
+  req.body.subTotal = subTotal;
+  req.body.shippingCost = shippingCost;
+  next();
+});
+
+exports.createOrder = catchAsync(async (req, res, next) => {
+  const { oderItems, totalPrice, shippingAddress, subTotal, shippingMethod } =
+    req.body;
   const newOrder = await Order.create({
     user: req.user._id,
-    oderItems: orderItems,
+    oderItems,
     totalPrice,
     subTotal,
     shippingAddress,
@@ -46,5 +54,19 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     paymentMethod: 'cash on delivery',
     paymentToken: 'neworder',
     paymentId: 'neworder',
+  });
+});
+
+exports.test = catchAsync(async (req, res, next) => {
+  req.body.test = 'test';
+  next();
+});
+
+exports.test2 = catchAsync(async (req, res, next) => {
+  res.status(200).json({
+    result: 'success',
+    data: {
+      data: req.body.test,
+    },
   });
 });

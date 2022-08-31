@@ -163,7 +163,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   createToken(user, 200, res);
 });
 
-exports.retrictTo =
+exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
     if (!roles.includes(req.user.role)) {

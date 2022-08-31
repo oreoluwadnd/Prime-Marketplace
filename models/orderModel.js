@@ -60,11 +60,6 @@ const OrderSchema = new moongose.Schema(
       type: String,
       required: true,
     },
-    paymentStatus: {
-      type: String,
-      enum: ['pending', 'completed', 'cancelled'],
-      default: 'pending',
-    },
     paymentId: {
       type: String,
     },
